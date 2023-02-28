@@ -28,10 +28,13 @@ def p_mode(t):
             | MINUS intervals'''
     intervals.reverse()
     for i in range(0, len(intervals)):
+        if t[1] == '-':
+            if intervals[i][2] >= 0:
+                raise Exception(f"Error: Interval is invalid ({str(intervals[i])})")
+
         if i > 0:
-            if t[1] == '-' and intervals[i-1][0] <= intervals[i][1]:
-                raise Exception("Error: Intervals are not in sequence " + str(intervals[i-1]) + " -> " + str(intervals[i]))
-            elif t[1] == '+' and intervals[i-1][1] >= intervals[i][0]:
+            if ((t[1] == '-' and intervals[i-1][1] <= intervals[i][0]) 
+               or (t[1] == '+' and intervals[i-1][1] >= intervals[i][0])):
                 raise Exception("Error: Intervals are not in sequence " + str(intervals[i-1]) + " -> " + str(intervals[i]))
 
 def p_intervals(t):
@@ -41,10 +44,7 @@ def p_intervals(t):
 
 def p_interval(t):
     'interval : OPEN NUMBER COMMA NUMBER CLOSE'
-    t[0] = [int(t[2]), int(t[4])]
-    
-    if t[2] >= t[4]:
-        raise Exception("Error: Interval " + str(t[0]) + " is invalid.")
+    t[0] = [int(t[2]), int(t[4]), int(t[4]) - int(t[2])]
 
 def p_error(t):
     print("Syntax error at '%s'" % t.value)
